@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CKS Exam Simulator 5 — Full Question Sheet with Answers</title>
+<style>
+  :root {
+    --bg:#0D1117;--surface:#161B22;--surface2:#1C2430;--border:#30363D;
+    --blue:#388BFD;--blue-dim:#1A3A5C;
+    --green:#3FB950;--green-dim:#122D1A;
+    --yellow:#D29922;--yellow-dim:#2D2008;
+    --red:#F85149;--red-dim:#2D0B0B;
+    --purple:#BC8CFF;--purple-dim:#1E1040;
+    --cyan:#39C5CF;--cyan-dim:#0A2328;
+    --orange:#F0883E;--orange-dim:#2D1800;
+    --text:#E6EDF3;--text-dim:#8B949E;
+    --code-bg:#0D1117;--radius:8px;
+    --mono:'JetBrains Mono','Fira Code',monospace;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.6;min-height:100vh;}
+
+  /* ── Header ── */
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .hdr-left{display:flex;align-items:center;gap:10px;}
+  .hdr-logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--red);letter-spacing:.05em;}
+  .hdr-title{font-size:13px;color:var(--text-dim);}
+  .hdr-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .total-badge{background:var(--orange-dim);color:var(--orange);border:1px solid var(--orange);border-radius:20px;padding:3px 12px;font-size:12px;font-weight:600;font-family:var(--mono);}
+  .prog-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);}
+  .prog-outer{width:120px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+  .prog-inner{height:100%;background:var(--green);border-radius:3px;width:0%;transition:width .4s;}
+
+  /* ── Domain filter ── */
+  .container{max-width:980px;margin:0 auto;padding:24px 20px 80px;}
+  .domain-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+  .dbtn{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text-dim);cursor:pointer;transition:all .15s;user-select:none;}
+  .dbtn:hover{border-color:var(--blue);color:var(--text);}
+  .dbtn.active{border-color:var(--red);background:var(--red-dim);color:var(--red);}
+  .dbtn[data-d="all"].active{border-color:var(--blue);background:var(--blue-dim);color:var(--blue);}
+
+  /* ── Index grid ── */
+  .index-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:8px;margin-bottom:30px;}
+  .ix{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;cursor:pointer;text-decoration:none;display:block;transition:border-color .15s,background .15s;}
+  .ix:hover{border-color:var(--blue);background:var(--surface2);}
+  .ix.done{border-color:var(--green);}
+  .ix.hidden{display:none;}
+  .ix-num{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-bottom:2px;}
+  .ix-name{font-size:11px;color:var(--text);line-height:1.3;}
+  .ix-pts{font-family:var(--mono);font-size:10px;color:var(--yellow);margin-top:3px;}
+  .ix-dom{font-size:10px;color:var(--text-dim);margin-top:2px;opacity:.7;}
+
+  /* ── Question card ── */
+  .qcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+  .qcard.done{border-color:var(--green);}
+  .qcard.hidden{display:none;}
+  .qhdr{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;user-select:none;gap:12px;border-bottom:1px solid transparent;transition:border-color .2s;}
+  .qcard.open>.qhdr{border-bottom-color:var(--border);background:var(--surface2);}
+  .qhdr-l{display:flex;align-items:center;gap:10px;min-width:0;}
+  .qnum{font-family:var(--mono);font-size:11px;font-weight:700;background:var(--red-dim);color:var(--red);border:1px solid var(--red);border-radius:4px;padding:2px 8px;white-space:nowrap;flex-shrink:0;}
+  .qtitle{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .qhdr-r{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+  .pts-b{font-family:var(--mono);font-size:11px;color:var(--yellow);background:var(--yellow-dim);border:1px solid var(--yellow);border-radius:4px;padding:2px 7px;white-space:nowrap;}
+  .dom-b{font-family:var(--mono);font-size:10px;color:var(--purple);background:var(--purple-dim);border:1px solid var(--purple);border-radius:4px;padding:2px 7px;white-space:nowrap;}
+  .ns-b{font-family:var(--mono);font-size:10px;color:var(--cyan);background:var(--cyan-dim);border:1px solid var(--cyan);border-radius:4px;padding:2px 7px;white-space:nowrap;}
+  .dchk{color:var(--green);font-size:15px;display:none;}
+  .qcard.done .dchk{display:block;}
+  .chev{color:var(--text-dim);font-size:11px;transition:transform .2s;}
+  .qcard.open .chev{transform:rotate(180deg);}
+
+  /* ── Body ── */
+  .qbody{display:none;padding:20px 18px;}
+  .qcard.open .qbody{display:block;}
+
+  /* ── Section label ── */
+  .sl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;margin-top:16px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+  .sl:first-child{margin-top:0;}
+
+  /* ── Badges ── */
+  .cb{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;background:var(--code-bg);border:1px solid var(--border);border-radius:5px;padding:3px 9px 3px 7px;cursor:pointer;transition:border-color .15s,background .15s,color .15s;color:var(--cyan);margin:2px 2px 2px 0;vertical-align:middle;user-select:none;white-space:nowrap;}
+  .cb:hover{border-color:var(--cyan);background:var(--cyan-dim);color:var(--text);}
+  .cb.copied{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+  .ci{font-size:10px;opacity:.7;}
+
+  /* ── Tables ── */
+  .st{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px;}
+  .st td{padding:5px 9px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .st tr:last-child td{border-bottom:none;}
+  .sk{color:var(--text-dim);width:38%;font-size:12px;white-space:nowrap;}
+  .sv{color:var(--text);font-family:var(--mono);}
+
+  /* ── Text ── */
+  .qbody p{margin-bottom:9px;color:var(--text);font-size:13px;line-height:1.65;}
+  .qbody ul,.qbody ol{padding-left:20px;margin-bottom:9px;}
+  .qbody li{font-size:13px;color:var(--text);margin-bottom:4px;line-height:1.6;}
+
+  /* ── Code blocks ── */
+  .cb-code{background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:4px;padding:11px 13px;font-family:var(--mono);font-size:12px;color:#79C0FF;overflow-x:auto;margin:7px 0;white-space:pre;line-height:1.6;}
+  .cb-yaml{background:var(--code-bg);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:4px;padding:11px 13px;font-family:var(--mono);font-size:12px;color:#A8DAFF;overflow-x:auto;margin:7px 0;white-space:pre;line-height:1.6;}
+
+  /* ── Alert boxes ── */
+  .note{background:var(--yellow-dim);border:1px solid var(--yellow);border-radius:5px;padding:9px 13px;font-size:12px;color:#E3B341;margin:9px 0;line-height:1.5;}
+  .tip{background:var(--cyan-dim);border:1px solid var(--cyan);border-radius:5px;padding:9px 13px;font-size:12px;color:var(--cyan);margin:9px 0;line-height:1.5;}
+  .danger{background:var(--red-dim);border:1px solid var(--red);border-radius:5px;padding:9px 13px;font-size:12px;color:var(--red);margin:9px 0;line-height:1.5;}
+
+  /* ── Answer section ── */
+  .ans-btn{margin-top:14px;padding:7px 16px;background:transparent;border:1px solid var(--purple);border-radius:var(--radius);color:var(--purple);font-size:12px;font-family:var(--sans);cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:6px;}
+  .ans-btn:hover{background:var(--purple-dim);}
+  .ans-sec{display:none;margin-top:14px;border:1px solid var(--purple);border-radius:var(--radius);overflow:hidden;}
+  .ans-sec.open{display:block;}
+  .ans-hdr{background:var(--purple-dim);border-bottom:1px solid var(--purple);padding:9px 16px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple);}
+  .ans-body{padding:16px 18px 8px;}
+
+  .astep{margin-bottom:20px;}
+  .astep-n{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;background:var(--purple-dim);border:1px solid var(--purple);border-radius:50%;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--purple);margin-right:7px;flex-shrink:0;vertical-align:middle;}
+  .astep-t{font-size:13px;font-weight:700;color:var(--text);vertical-align:middle;}
+  .astep-b{margin-top:7px;padding-left:28px;}
+  .astep-b p{font-size:13px;color:var(--text-dim);line-height:1.7;margin-bottom:7px;}
+  .astep-b ul,.astep-b ol{padding-left:18px;margin-bottom:7px;}
+  .astep-b li{font-size:13px;color:var(--text-dim);margin-bottom:4px;line-height:1.65;}
+
+  .why{background:#0F1F10;border:1px solid #2E5733;border-left:3px solid var(--green);border-radius:4px;padding:9px 13px;margin:7px 0;font-size:12px;color:#8DBC8F;line-height:1.6;}
+  .why strong{color:var(--green);}
+
+  .chk-row{display:flex;align-items:flex-start;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:12px;font-family:var(--mono);}
+  .chk-row:last-child{border-bottom:none;}
+  .chk-ic{color:var(--green);flex-shrink:0;margin-top:1px;}
+  .chk-tx{color:var(--text-dim);}
+
+  .dlink{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px;color:var(--blue);text-decoration:none;background:var(--blue-dim);border:1px solid var(--blue);border-radius:4px;padding:2px 7px;margin:2px 2px 2px 0;transition:background .15s;}
+  .dlink:hover{background:#1F4E8C;color:var(--text);}
+
+  /* ── Done btn ── */
+  .done-btn{margin-top:16px;padding:7px 16px;background:transparent;border:1px solid var(--green);border-radius:var(--radius);color:var(--green);font-size:13px;font-family:var(--sans);cursor:pointer;transition:background .15s;display:flex;align-items:center;gap:6px;}
+  .done-btn:hover{background:var(--green-dim);}
+  .qcard.done .done-btn{background:var(--green-dim);opacity:.7;}
+
+  .res{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;}
+  .rl{font-family:var(--mono);font-size:11px;color:var(--blue);text-decoration:none;background:var(--blue-dim);border:1px solid var(--blue);border-radius:4px;padding:2px 7px;transition:background .15s;}
+  .rl:hover{background:#1F4E8C;color:var(--text);}
+
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--green-dim);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:12px;padding:8px 18px;border-radius:20px;z-index:999;transition:transform .25s ease;pointer-events:none;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:640px){
+    .hdr-title,.dom-b,.ns-b{display:none;}
+    .qtitle{font-size:13px;}
+    .index-grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr-left">
+    <div class="hdr-logo">🔒 CKS</div>
+    <div class="hdr-title">Exam Simulator 5 — Questions &amp; Detailed Answers</div>
+  </div>
+  <div class="hdr-right">
+    <div class="prog-wrap">
+      <span id="prog-txt">0 / 16</span>
+      <div class="prog-outer"><div class="prog-inner" id="prog-bar"></div></div>
+    </div>
+    <div class="total-badge">109 pts</div>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="domain-bar">
+  <button class="dbtn active" data-d="all" onclick="fd('all')">All (16)</button>
+  <button class="dbtn" data-d="cs" onclick="fd('cs')">Cluster Setup</button>
+  <button class="dbtn" data-d="ch" onclick="fd('ch')">Cluster Hardening</button>
+  <button class="dbtn" data-d="sh" onclick="fd('sh')">System Hardening</button>
+  <button class="dbtn" data-d="mv" onclick="fd('mv')">Microservice Vulns</button>
+  <button class="dbtn" data-d="sc" onclick="fd('sc')">Supply Chain</button>
+  <button class="dbtn" data-d="rs" onclick="fd('rs')">Runtime Security</button>
+</div>
+
+<div class="index-grid" id="ig">
+  <a class="ix" href="#q1" data-d="cs" onclick="oq(1)"><div class="ix-num">Q01</div><div class="ix-name">Harden Kubelet &amp; etcd (CIS)</div><div class="ix-pts">6 pts</div><div class="ix-dom">Cluster Setup</div></a>
+  <a class="ix" href="#q2" data-d="ch" onclick="oq(2)"><div class="ix-num">Q02</div><div class="ix-name">TLS Secret clever-cactus</div><div class="ix-pts">7 pts</div><div class="ix-dom">Cluster Hardening</div></a>
+  <a class="ix" href="#q3" data-d="sc" onclick="oq(3)"><div class="ix-num">Q03</div><div class="ix-name">Fix Dockerfile &amp; Manifest</div><div class="ix-pts">7 pts</div><div class="ix-dom">Supply Chain</div></a>
+  <a class="ix" href="#q4" data-d="rs" onclick="oq(4)"><div class="ix-num">Q04</div><div class="ix-name">ollama Pod Reading /dev/mem</div><div class="ix-pts">7 pts</div><div class="ix-dom">Runtime Security</div></a>
+  <a class="ix" href="#q5" data-d="mv" onclick="oq(5)"><div class="ix-num">Q05</div><div class="ix-name">Immutability — lamp-deployment</div><div class="ix-pts">7 pts</div><div class="ix-dom">Microservice Vulns</div></a>
+  <a class="ix" href="#q6" data-d="rs" onclick="oq(6)"><div class="ix-num">Q06</div><div class="ix-name">Implement &amp; Extend Audit Policy</div><div class="ix-pts">7 pts</div><div class="ix-dom">Runtime Security</div></a>
+  <a class="ix" href="#q7" data-d="ch" onclick="oq(7)"><div class="ix-num">Q07</div><div class="ix-name">NetworkPolicies prod / data</div><div class="ix-pts">7 pts</div><div class="ix-dom">Cluster Hardening</div></a>
+  <a class="ix" href="#q8" data-d="ch" onclick="oq(8)"><div class="ix-num">Q08</div><div class="ix-name">Cilium Ingress TLS + Redirect</div><div class="ix-pts">7 pts</div><div class="ix-dom">Cluster Hardening</div></a>
+  <a class="ix" href="#q9" data-d="mv" onclick="oq(9)"><div class="ix-num">Q09</div><div class="ix-name">SA Token Automount — stats-monitor</div><div class="ix-pts">7 pts</div><div class="ix-dom">Microservice Vulns</div></a>
+  <a class="ix" href="#q10" data-d="cs" onclick="oq(10)"><div class="ix-num">Q10</div><div class="ix-name">Worker Upgrade (apt + kubeadm)</div><div class="ix-pts">6 pts</div><div class="ix-dom">Cluster Setup</div></a>
+  <a class="ix" href="#q11" data-d="sc" onclick="oq(11)"><div class="ix-num">Q11</div><div class="ix-name">libcrypto3 + SPDX SBOM</div><div class="ix-pts">7 pts</div><div class="ix-dom">Supply Chain</div></a>
+  <a class="ix" href="#q12" data-d="mv" onclick="oq(12)"><div class="ix-num">Q12</div><div class="ix-name">Fix Restricted PSS Deployment</div><div class="ix-pts">7 pts</div><div class="ix-dom">Microservice Vulns</div></a>
+  <a class="ix" href="#q13" data-d="sh" onclick="oq(13)"><div class="ix-num">Q13</div><div class="ix-name">Harden the Docker Daemon</div><div class="ix-pts">7 pts</div><div class="ix-dom">System Hardening</div></a>
+  <a class="ix" href="#q14" data-d="ch" onclick="oq(14)"><div class="ix-num">Q14</div><div class="ix-name">Istio mTLS Authentication</div><div class="ix-pts">7 pts</div><div class="ix-dom">Cluster Hardening</div></a>
+  <a class="ix" href="#q15" data-d="sc" onclick="oq(15)"><div class="ix-num">Q15</div><div class="ix-name">ImagePolicyWebhook (bouncer)</div><div class="ix-pts">7 pts</div><div class="ix-dom">Supply Chain</div></a>
+  <a class="ix" href="#q16" data-d="cs" onclick="oq(16)"><div class="ix-num">Q16</div><div class="ix-name">Secure API Server + anonymous CRB</div><div class="ix-pts">6 pts</div><div class="ix-dom">Cluster Setup</div></a>
+</div>
+
+<!-- ═══════════════ Q01 ═══════════════ -->
+<div class="qcard" id="q1" data-d="cs">
+  <div class="qhdr" onclick="tq(1)">
+    <div class="qhdr-l"><span class="qnum">Q01</span><span class="qtitle">Harden the Kubelet and etcd (CIS Benchmark)</span></div>
+    <div class="qhdr-r"><span class="dom-b">Cluster Setup</span><span class="pts-b">6 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Context</div>
+    <p>You must resolve issues that a CIS Benchmark tool found for the kubeadm provisioned cluster. Fix all issues via configuration and restart the affected components.</p>
+    <div class="sl">Requirements</div>
+    <ol>
+      <li>Kubelet: ensure <span class="cb" onclick="cp(this,'anonymous-auth=false')"><span class="ci">⎘</span>anonymous-auth=false</span> — <strong style="color:var(--red)">FAIL</strong></li>
+      <li>Kubelet: ensure <span class="cb" onclick="cp(this,'authorization-mode')"><span class="ci">⎘</span>--authorization-mode</span> is not set to <code>AlwaysAllow</code> — <strong style="color:var(--red)">FAIL</strong>. Use Webhook authentication/authorization where possible.</li>
+      <li>etcd: ensure <span class="cb" onclick="cp(this,'--client-cert-auth=true')"><span class="ci">⎘</span>--client-cert-auth=true</span> — <strong style="color:var(--red)">FAIL</strong></li>
+    </ol>
+    <div class="note">⏱️ After restarting the kubelet the node may take up to 60 seconds to return to Ready. This node runs containerd — use crictl where the exam says docker.</div>
+    <button class="ans-btn" onclick="ta('a1')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a1">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Fix the kubelet configuration</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /var/lib/kubelet/config.yaml</div>
+            <div class="cb-yaml">authentication:
+  anonymous:
+    enabled: false        # was true — CIS fix
+  webhook:
+    enabled: true
+authorization:
+  mode: Webhook           # was AlwaysAllow — CIS fix</div>
+            <div class="why"><strong>Why?</strong> With anonymous auth enabled, any request to kubelet port 10250 runs as <code>system:anonymous</code>; combined with <code>AlwaysAllow</code>, an attacker can exec into any container on the node without credentials. <code>Webhook</code> delegates every kubelet authz decision to the API server via SubjectAccessReview.</div>
+            <div class="cb-code">systemctl daemon-reload &amp;&amp; systemctl restart kubelet</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Fix etcd client certificate authentication</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /etc/kubernetes/manifests/etcd.yaml</div>
+            <div class="cb-yaml">- --client-cert-auth=true   # change from false (or add)</div>
+            <div class="why"><strong>Why?</strong> etcd stores every Secret in the cluster. Without client-cert auth, anything that can reach port 2379 can read or rewrite the whole cluster state. etcd is a static Pod — the kubelet restarts it automatically after you save; wait ~30s.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">3</span><span class="astep-t">Scoring checklist</span>
+          <div class="astep-b">
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">authentication.anonymous.enabled: false in /var/lib/kubelet/config.yaml</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">authorization.mode: Webhook</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">etcd --client-cert-auth=true</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Node Ready (kubectl get nodes)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(1)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q02 ═══════════════ -->
+<div class="qcard" id="q2" data-d="ch">
+  <div class="qhdr" onclick="tq(2)">
+    <div class="qhdr-l"><span class="qnum">Q02</span><span class="qtitle">Create a TLS Secret for clever-cactus</span></div>
+    <div class="qhdr-r"><span class="dom-b">Cluster Hardening</span><span class="ns-b">clever-cactus</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <p>Create a TLS Secret named <span class="cb" onclick="cp(this,'clever-cactus')"><span class="ci">⎘</span>clever-cactus</span> in the <code>clever-cactus</code> namespace for an existing Deployment named <code>clever-cactus</code>. The Deployment is already configured to use the Secret as a volume.</p>
+    <div class="sl">SSL files</div>
+    <ol>
+      <li>Certificate: <span class="cb" onclick="cp(this,'/home/candidate/clever-cactus/web.k8s.local.crt')"><span class="ci">⎘</span>/home/candidate/clever-cactus/web.k8s.local.crt</span></li>
+      <li>Key: <span class="cb" onclick="cp(this,'/home/candidate/clever-cactus/web.k8s.local.key')"><span class="ci">⎘</span>/home/candidate/clever-cactus/web.k8s.local.key</span></li>
+    </ol>
+    <button class="ans-btn" onclick="ta('a2')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a2">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">One-liner solution</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n clever-cactus create secret tls clever-cactus \
+  --cert=/home/candidate/clever-cactus/web.k8s.local.crt \
+  --key=/home/candidate/clever-cactus/web.k8s.local.key</div>
+            <div class="why"><strong>Why <code>create secret tls</code>?</strong> It produces a Secret of type <code>kubernetes.io/tls</code> with the required <code>tls.crt</code>/<code>tls.key</code> keys. A generic secret would have the wrong type and the volume/Ingress consumers may reject it.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Verify</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n clever-cactus get secret clever-cactus
+kubectl -n clever-cactus get pods   # Pods leave Pending/CreateContainerConfigError</div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Secret clever-cactus, type kubernetes.io/tls, in ns clever-cactus</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Deployment clever-cactus Pods Running</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(2)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q03 ═══════════════ -->
+<div class="qcard" id="q3" data-d="sc">
+  <div class="qhdr" onclick="tq(3)">
+    <div class="qhdr-l"><span class="qnum">Q03</span><span class="qtitle">Fix a Vulnerable Dockerfile and Deployment Manifest</span></div>
+    <div class="qhdr-r"><span class="dom-b">Supply Chain</span><span class="ns-b">subtle-bee</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <ol>
+      <li>Edit <span class="cb" onclick="cp(this,'/home/candidate/subtle-bee/build/Dockerfile')"><span class="ci">⎘</span>/home/candidate/subtle-bee/build/Dockerfile</span> — fix <strong>one instruction</strong> with a prominent security issue. Do not add/remove instructions. <strong style="color:var(--red)">Do not build the Dockerfile</strong> (risk of zero score).</li>
+      <li>Edit <span class="cb" onclick="cp(this,'/home/candidate/subtle-bee/deployment.yaml')"><span class="ci">⎘</span>/home/candidate/subtle-bee/deployment.yaml</span> — fix <strong>one field</strong> with a prominent security issue. Do not add/remove fields.</li>
+    </ol>
+    <div class="note">If you need an unprivileged user, use <code>nobody</code> with user ID <code>65535</code>.</div>
+    <button class="ans-btn" onclick="ta('a3')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a3">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Dockerfile — change USER root to USER nobody</span>
+          <div class="astep-b">
+            <div class="cb-yaml"># before
+USER root
+# after
+USER nobody</div>
+            <div class="why"><strong>Why?</strong> A container running as root has UID 0 in the container and (without user namespaces) UID 0 on the host if it escapes. <code>USER nobody</code> (65534/65535 depending on distro; the exam tells you 65535) drops privileges at the image level — the last <code>USER</code> instruction wins for the runtime user. It's the only instruction in the file that is inherently insecure; do not touch FROM/COPY/CMD.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Deployment manifest — flip privileged</span>
+          <div class="astep-b">
+            <div class="cb-yaml">securityContext:
+  privileged: false     # was true — the one bad field
+  runAsNonRoot: false   # leave other fields as-is</div>
+            <div class="why"><strong>Why?</strong> <code>privileged: true</code> gives the container ALL capabilities and raw device access (/dev, kernel modules) — it is effectively root on the node. It's the single most dangerous field in a Pod spec, so it's "the one field" to fix. Only modify it; adding or removing fields violates the task and loses points.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">3</span><span class="astep-t">Scoring checklist</span>
+          <div class="astep-b">
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Dockerfile: USER nobody (no USER root left)</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">deployment.yaml: privileged: false</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">No instructions/fields added or removed; image never built</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(3)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q04 ═══════════════ -->
+<div class="qcard" id="q4" data-d="rs">
+  <div class="qhdr" onclick="tq(4)">
+    <div class="qhdr-l"><span class="qnum">Q04</span><span class="qtitle">Find the ollama Pod Reading /dev/mem and Contain It</span></div>
+    <div class="qhdr-r"><span class="dom-b">Runtime Security</span><span class="ns-b">ollama</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <ol>
+      <li>One Pod of the application <code>ollama</code> is reading the sensitive file <span class="cb" onclick="cp(this,'/dev/mem')"><span class="ci">⎘</span>/dev/mem</span> — identify it (Falco DaemonSet runs in ns <code>falco</code>, rules load from <code>/etc/falco/rules.d/</code>).</li>
+      <li>Identify the Deployment managing that Pod and <strong>scale it to zero replicas</strong>.</li>
+    </ol>
+    <div class="danger">⚠️ Do not modify the Deployment except scaling. Do not modify or delete any other Deployments. Only the containment is graded.</div>
+    <button class="ans-btn" onclick="ta('a4')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a4">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Write a tiny Falco detection rule</span>
+          <div class="astep-b">
+            <div class="cb-code">cat &lt;&lt;'EOF' &gt; /etc/falco/rules.d/devmem.yaml
+- rule: Read dev mem
+  desc: detect any process opening /dev/mem
+  condition: evt.type in (open, openat) and fd.name = /dev/mem
+  output: "dev/mem opened (pod=%k8s.pod.name container=%container.name proc=%proc.name)"
+  priority: WARNING
+EOF
+kubectl -n falco rollout restart ds falco   # or: kill -HUP the falco process
+kubectl -n falco logs -l app.kubernetes.io/name=falco -f | grep "dev/mem"</div>
+            <div class="why"><strong>Why Falco?</strong> Falco hooks syscalls at the kernel level, so a read of /dev/mem shows up instantly with the pod and container names via the k8s metadata enrichment — much faster than exec-ing into every pod. The <code>%k8s.pod.name</code> output field is what identifies the offender.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Map Pod → Deployment and scale to zero</span>
+          <div class="astep-b">
+            <div class="cb-code"># pod name like ollama-batch-6d5f...-xyz → ReplicaSet ollama-batch-6d5f... → Deployment ollama-batch
+kubectl -n ollama get pods -o wide
+kubectl -n ollama scale deployment ollama-batch --replicas=0</div>
+            <div class="why"><strong>Why scale, not delete?</strong> Scaling to 0 removes the running threat while preserving the Deployment object for forensics — and the task explicitly forbids deleting or otherwise modifying Deployments.</div>
+            <div class="cb-code">kubectl -n ollama get deploy   # offender 0/0, others untouched</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">3</span><span class="astep-t">Scoring checklist</span>
+          <div class="astep-b">
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Offending Deployment at 0 replicas</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Other ollama Deployments still running, none deleted</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(4)">✓ Mark as done</button>
+  </div>
+</div>
+<!-- ═══════════════ Q05 ═══════════════ -->
+<div class="qcard" id="q5" data-d="mv">
+  <div class="qhdr" onclick="tq(5)">
+    <div class="qhdr-l"><span class="qnum">Q05</span><span class="qtitle">Enforce Container Immutability on lamp-deployment</span></div>
+    <div class="qhdr-r"><span class="dom-b">Microservice Vulns</span><span class="ns-b">lamp</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <p>Modify the existing Deployment <span class="cb" onclick="cp(this,'lamp-deployment')"><span class="ci">⎘</span>lamp-deployment</span> in namespace <code>lamp</code> so that its containers:</p>
+    <ol>
+      <li>run with user ID <span class="cb" onclick="cp(this,'20000')"><span class="ci">⎘</span>20000</span></li>
+      <li>use a read-only root filesystem</li>
+      <li>forbid privilege escalation</li>
+    </ol>
+    <div class="note">The manifest file is at <code>/home/candidate/finer-sunbeam/lamp-deployment.yaml</code>.</div>
+    <button class="ans-btn" onclick="ta('a5')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a5">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Edit the container securityContext</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n lamp edit deploy lamp-deployment
+# or edit /home/candidate/finer-sunbeam/lamp-deployment.yaml and kubectl apply -f</div>
+            <div class="cb-yaml">spec:
+  template:
+    spec:
+      containers:
+        - name: lamp
+          image: busybox:latest
+          securityContext:
+            runAsUser: 20000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false</div>
+            <div class="why"><strong>Why these three?</strong> <code>runAsUser: 20000</code> guarantees a non-root UID; <code>readOnlyRootFilesystem</code> makes the container immutable — malware can't drop binaries or modify configs at runtime; <code>allowPrivilegeEscalation: false</code> blocks setuid binaries (sudo, su) from gaining more privileges than the parent process.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Verify</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n lamp get deploy lamp-deployment
+kubectl -n lamp get pods</div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">runAsUser 20000, readOnlyRootFilesystem true, allowPrivilegeEscalation false</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Deployment available after rollout</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(5)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q06 ═══════════════ -->
+<div class="qcard" id="q6" data-d="rs">
+  <div class="qhdr" onclick="tq(6)">
+    <div class="qhdr-l"><span class="qnum">Q06</span><span class="qtitle">Implement and Extend an API Server Audit Policy</span></div>
+    <div class="qhdr-r"><span class="dom-b">Runtime Security</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task — part 1: enable auditing</div>
+    <ol>
+      <li>Use the basic policy at <span class="cb" onclick="cp(this,'/etc/kubernetes/logpolicy/audit-policy.yaml')"><span class="ci">⎘</span>/etc/kubernetes/logpolicy/audit-policy.yaml</span></li>
+      <li>Store logs at <span class="cb" onclick="cp(this,'/var/log/kubernetes/audit-logs.txt')"><span class="ci">⎘</span>/var/log/kubernetes/audit-logs.txt</span></li>
+      <li>Retain a maximum of <strong>2</strong> logs for <strong>10</strong> days</li>
+    </ol>
+    <div class="sl">Task — part 2: extend the policy to log</div>
+    <ol>
+      <li><code>namespaces</code> interactions at <code>RequestResponse</code> level</li>
+      <li>the request body of <code>deployments</code> interactions in namespace <code>webapps</code></li>
+      <li>ConfigMap and Secret interactions in all namespaces at <code>Metadata</code> level</li>
+      <li>all other requests at <code>Metadata</code> level</li>
+    </ol>
+    <button class="ans-btn" onclick="ta('a6')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a6">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Add the audit flags + mounts to kube-apiserver.yaml</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /etc/kubernetes/manifests/kube-apiserver.yaml</div>
+            <div class="cb-yaml">- --audit-policy-file=/etc/kubernetes/logpolicy/audit-policy.yaml
+- --audit-log-path=/var/log/kubernetes/audit-logs.txt
+- --audit-log-maxbackup=2
+- --audit-log-maxage=10</div>
+            <p>Mount both paths into the static Pod (hostPath volumes + volumeMounts):</p>
+            <div class="cb-yaml">volumeMounts:
+  - mountPath: /etc/kubernetes/logpolicy
+    name: audit-policy
+    readOnly: true
+  - mountPath: /var/log/kubernetes
+    name: audit-logs
+volumes:
+  - hostPath: {path: /etc/kubernetes/logpolicy, type: DirectoryOrCreate}
+    name: audit-policy
+  - hostPath: {path: /var/log/kubernetes, type: DirectoryOrCreate}
+    name: audit-logs</div>
+            <div class="why"><strong>Why the mounts?</strong> The API server runs as a container — without hostPath mounts it can neither read the policy nor write the log, and it will crash-loop. <code>maxbackup=2</code> = "maximum of 2 logs retained", <code>maxage=10</code> = "for 10 days".</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Extend the policy (order matters — specific rules first, catch-all last)</span>
+          <div class="astep-b">
+            <div class="cb-yaml">apiVersion: audit.k8s.io/v1
+kind: Policy
+omitStages: ["RequestReceived"]
+rules:
+  # ... keep the existing "None" rules from the basic policy ...
+  - level: RequestResponse
+    resources:
+      - group: ""
+        resources: ["namespaces"]
+  - level: Request
+    resources:
+      - group: "apps"
+        resources: ["deployments"]
+    namespaces: ["webapps"]
+  - level: Metadata
+    resources:
+      - group: ""
+        resources: ["configmaps", "secrets"]
+  - level: Metadata          # catch-all — must be LAST
+</div>
+            <div class="why"><strong>Why Request for "request body"?</strong> <code>Request</code> logs metadata + the request body; <code>RequestResponse</code> also logs the response body. "Log the request body" maps exactly to level <code>Request</code>. Rules are evaluated top-down and the first match wins — putting the Metadata catch-all first would swallow everything.</div>
+            <div class="cb-code"># apply: the kubelet restarts the API server when the manifest changes;
+# if you only changed the policy file, force it:
+cd /etc/kubernetes/manifests &amp;&amp; mv kube-apiserver.yaml .. &amp;&amp; sleep 5 &amp;&amp; mv ../kube-apiserver.yaml .
+tail /var/log/kubernetes/audit-logs.txt</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">3</span><span class="astep-t">Scoring checklist</span>
+          <div class="astep-b">
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">4 API server flags exactly as above</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Policy: namespaces@RequestResponse, deployments(webapps)@Request, configmaps+secrets@Metadata, catch-all Metadata last</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">audit-logs.txt exists and grows</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(6)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q07 ═══════════════ -->
+<div class="qcard" id="q7" data-d="ch">
+  <div class="qhdr" onclick="tq(7)">
+    <div class="qhdr-l"><span class="qnum">Q07</span><span class="qtitle">NetworkPolicies for Namespace Isolation</span></div>
+    <div class="qhdr-r"><span class="dom-b">Cluster Hardening</span><span class="ns-b">prod / data</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <ol>
+      <li>Create NetworkPolicy <span class="cb" onclick="cp(this,'deny-policy')"><span class="ci">⎘</span>deny-policy</span> in namespace <code>prod</code> (labeled <code>env: prod</code>) to block <strong>all ingress</strong> traffic.</li>
+      <li>Create NetworkPolicy <span class="cb" onclick="cp(this,'allow-from-prod')"><span class="ci">⎘</span>allow-from-prod</span> in namespace <code>data</code> (labeled <code>env: data</code>) to allow ingress <strong>only from Pods in the prod namespace</strong> — use the prod namespace label.</li>
+    </ol>
+    <div class="danger">⚠️ Do not modify or delete any namespaces or Pods — only create the two NetworkPolicies.</div>
+    <button class="ans-btn" onclick="ta('a7')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a7">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">deny-policy — default-deny all ingress in prod</span>
+          <div class="astep-b">
+            <div class="cb-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-policy
+  namespace: prod
+spec:
+  podSelector: {}          # selects ALL pods in prod
+  policyTypes: ["Ingress"] # no ingress rules → nothing allowed</div>
+            <div class="why"><strong>Why it works:</strong> once any NetworkPolicy selects a Pod, that Pod becomes "isolated" for the listed policyTypes; with an empty <code>ingress</code> list, no ingress is whitelisted, so everything is denied.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">allow-from-prod — namespace-selector allow in data</span>
+          <div class="astep-b">
+            <div class="cb-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-from-prod
+  namespace: data
+spec:
+  podSelector: {}
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              env: prod</div>
+            <div class="why"><strong>namespaceSelector vs podSelector:</strong> a single <code>from</code> entry with only a namespaceSelector allows any Pod from namespaces carrying <code>env=prod</code>. (Combining namespaceSelector AND podSelector in the same entry would AND them — not asked here.)</div>
+            <div class="cb-code">kubectl apply -f netpol.yaml
+kubectl -n prod get netpol; kubectl -n data get netpol</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(7)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q08 ═══════════════ -->
+<div class="qcard" id="q8" data-d="ch">
+  <div class="qhdr" onclick="tq(8)">
+    <div class="qhdr-l"><span class="qnum">Q08</span><span class="qtitle">Cilium Ingress with TLS Termination and HTTP→HTTPS Redirect</span></div>
+    <div class="qhdr-r"><span class="dom-b">Cluster Hardening</span><span class="ns-b">prod</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <p>A default <strong>Cilium</strong> IngressClass is configured. Create an Ingress named <span class="cb" onclick="cp(this,'web')"><span class="ci">⎘</span>web</span> in namespace <code>prod</code>:</p>
+    <ol>
+      <li>Route host <span class="cb" onclick="cp(this,'web.k8s.local')"><span class="ci">⎘</span>web.k8s.local</span>, all paths, to the existing Service <code>web</code></li>
+      <li>TLS termination using the existing Secret <span class="cb" onclick="cp(this,'web-cert')"><span class="ci">⎘</span>web-cert</span></li>
+      <li>Redirect HTTP requests to HTTPS</li>
+    </ol>
+    <div class="note">Test with: <code>curl -L http://web.k8s.local</code></div>
+    <button class="ans-btn" onclick="ta('a8')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a8">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">The complete Ingress</span>
+          <div class="astep-b">
+            <div class="cb-yaml">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web
+  namespace: prod
+  annotations:
+    ingress.cilium.io/force-https: "enabled"   # HTTP → HTTPS redirect
+spec:
+  ingressClassName: cilium
+  tls:
+    - hosts: ["web.k8s.local"]
+      secretName: web-cert
+  rules:
+    - host: web.k8s.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 80</div>
+            <div class="why"><strong>Why the annotation?</strong> Cilium's Envoy-based ingress performs the 301 redirect when <code>ingress.cilium.io/force-https</code> is enabled — the Cilium equivalent of nginx's <code>ssl-redirect</code>. <code>pathType: Prefix</code> with <code>/</code> covers "all paths". The TLS block's <code>secretName</code> is where termination happens.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Verify</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n prod get ingress web
+curl -kL http://web.k8s.local     # follows 301 to https and returns the nginx page</div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">host web.k8s.local → service web:80, all paths</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">tls.secretName: web-cert · ingressClassName: cilium · force-https enabled</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(8)">✓ Mark as done</button>
+  </div>
+</div>
+<!-- ═══════════════ Q09 ═══════════════ -->
+<div class="qcard" id="q9" data-d="mv">
+  <div class="qhdr" onclick="tq(9)">
+    <div class="qhdr-l"><span class="qnum">Q09</span><span class="qtitle">Lock Down ServiceAccount Token Automounting</span></div>
+    <div class="qhdr-r"><span class="dom-b">Microservice Vulns</span><span class="ns-b">monitoring</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <ol>
+      <li>Modify ServiceAccount <span class="cb" onclick="cp(this,'stats-monitor-sa')"><span class="ci">⎘</span>stats-monitor-sa</span> in namespace <code>monitoring</code> to <strong>turn off automounting</strong> of API credentials.</li>
+      <li>Modify Deployment <span class="cb" onclick="cp(this,'stats-monitor')"><span class="ci">⎘</span>stats-monitor</span> to inject a ServiceAccount token mounted at <span class="cb" onclick="cp(this,'/var/run/secrets/kubernetes.io/serviceaccount/token')"><span class="ci">⎘</span>/var/run/secrets/kubernetes.io/serviceaccount/token</span>.</li>
+      <li>Use a <strong>Projected Volume named <code>token</code></strong>, mounted <strong>read-only</strong>.</li>
+    </ol>
+    <button class="ans-btn" onclick="ta('a9')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a9">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Disable automount on the ServiceAccount</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n monitoring edit sa stats-monitor-sa</div>
+            <div class="cb-yaml">apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: stats-monitor-sa
+  namespace: monitoring
+automountServiceAccountToken: false   # top-level field, NOT under metadata</div>
+            <div class="why"><strong>Why?</strong> By default every Pod gets a token mounted automatically — any RCE in the container immediately yields API credentials. Disabling automount and injecting an explicit, short-lived projected token follows least privilege.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Inject via projected volume named "token"</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n monitoring edit deploy stats-monitor</div>
+            <div class="cb-yaml">spec:
+  template:
+    spec:
+      serviceAccountName: stats-monitor-sa
+      containers:
+        - name: stats-monitor
+          volumeMounts:
+            - name: token
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+              readOnly: true
+      volumes:
+        - name: token
+          projected:
+            sources:
+              - serviceAccountToken:
+                  path: token          # → .../serviceaccount/token
+                  expirationSeconds: 3600</div>
+            <div class="why"><strong>mountPath vs path:</strong> the volume mounts the directory <code>/var/run/secrets/kubernetes.io/serviceaccount</code>; the serviceAccountToken source's <code>path: token</code> creates the file <code>token</code> inside it — giving exactly the required full path. <code>readOnly: true</code> on the volumeMount is explicitly graded.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">3</span><span class="astep-t">Scoring checklist</span>
+          <div class="astep-b">
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">SA automountServiceAccountToken: false</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Projected volume named token with serviceAccountToken source</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Mounted read-only at /var/run/secrets/kubernetes.io/serviceaccount</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Pods Running</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(9)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q10 ═══════════════ -->
+<div class="qcard" id="q10" data-d="cs">
+  <div class="qhdr" onclick="tq(10)">
+    <div class="qhdr-l"><span class="qnum">Q10</span><span class="qtitle">Upgrade a Worker Node by One Patch Version (apt + kubeadm)</span></div>
+    <div class="qhdr-r"><span class="dom-b">Cluster Setup</span><span class="pts-b">6 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <p>The worker node runs kubelet <code>v1.30.0</code> and must be upgraded to <span class="cb" onclick="cp(this,'v1.30.1')"><span class="ci">⎘</span>v1.30.1</span>. SSH: <code>ssh root@&lt;worker-node&gt;</code> (password <code>Kd7wA3fX</code>). The v1.30 apt repo is already configured.</p>
+    <div class="sl">Steps required</div>
+    <ol>
+      <li>Identify the worker with <code>kubectl get nodes</code></li>
+      <li>Drain the worker node</li>
+      <li>SSH in: upgrade kubeadm → <code>kubeadm upgrade node</code> → upgrade kubelet &amp; kubectl → restart kubelet</li>
+      <li>Uncordon the node</li>
+    </ol>
+    <button class="ans-btn" onclick="ta('a10')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a10">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Drain from the control plane</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl get nodes
+kubectl drain node01 --ignore-daemonsets --delete-emptydir-data</div>
+            <div class="why"><strong>Why drain first?</strong> Draining cordons the node and evicts workloads gracefully so nothing is running on a kubelet that's mid-upgrade. DaemonSets can't be evicted, hence the flag.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Upgrade on the worker (over SSH)</span>
+          <div class="astep-b">
+            <div class="cb-code">ssh root@node01        # password: Kd7wA3fX
+apt-get update
+apt-mark unhold kubeadm kubelet kubectl
+apt-get install -y kubeadm=1.30.1-1.1
+kubeadm upgrade node
+apt-get install -y kubelet=1.30.1-1.1 kubectl=1.30.1-1.1
+apt-mark hold kubeadm kubelet kubectl
+systemctl daemon-reload
+systemctl restart kubelet
+exit</div>
+            <div class="why"><strong>Why kubeadm first + <code>kubeadm upgrade node</code>?</strong> On a worker it refreshes the local kubelet configuration from the cluster before the new kubelet starts — the documented order is always kubeadm → upgrade node → kubelet/kubectl. Exact version pinning (<code>=1.30.1-*</code>) is what "upgrade by one patch version" means; a plain <code>apt-get upgrade</code> could jump further.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">3</span><span class="astep-t">Uncordon and verify</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl uncordon node01
+kubectl get nodes    # node01 Ready, VERSION v1.30.1 (allow ~60s)</div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Worker Ready, not SchedulingDisabled, v1.30.1</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(10)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q11 ═══════════════ -->
+<div class="qcard" id="q11" data-d="sc">
+  <div class="qhdr" onclick="tq(11)">
+    <div class="qhdr-l"><span class="qnum">Q11</span><span class="qtitle">Identify a Vulnerable Package and Generate an SPDX SBOM</span></div>
+    <div class="qhdr-r"><span class="dom-b">Supply Chain</span><span class="ns-b">alpine</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <ol>
+      <li>The <code>alpine</code> Deployment (ns <code>alpine</code>) has three containers on different alpine versions. Find which image contains <span class="cb" onclick="cp(this,'libcrypto3')"><span class="ci">⎘</span>libcrypto3</span> at version <span class="cb" onclick="cp(this,'3.1.4-r5')"><span class="ci">⎘</span>3.1.4-r5</span>.</li>
+      <li>Use the pre-installed <code>bom</code> tool to create an SPDX document for that image at <span class="cb" onclick="cp(this,'/home/candidate/alpine.spdx')"><span class="ci">⎘</span>/home/candidate/alpine.spdx</span>.</li>
+    </ol>
+    <button class="ans-btn" onclick="ta('a11')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a11">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Find the image versions and check the package</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n alpine get deploy alpine \
+  -o jsonpath='{range .spec.template.spec.containers[*]}{.image}{"\n"}{end}'
+# alpine:3.18.4  alpine:3.19.1  alpine:3.20.0
+
+# quickest: run apk inside each version
+for v in 3.18.4 3.19.1 3.20.0; do
+  echo "== $v =="; kubectl run tmp-$v --rm -it --restart=Never \
+    --image=alpine:$v -- sh -c 'apk list 2>/dev/null | grep libcrypto3'
+done
+# → alpine:3.19.1 ships libcrypto3-3.1.4-r5</div>
+            <div class="why"><strong>Why exact version matters:</strong> every alpine image contains <em>some</em> libcrypto3 — the question asks for the release that ships exactly <code>3.1.4-r5</code>, which is 3.19.1. (trivy or <code>crictl exec</code> into the running containers works too.)</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Generate the SPDX SBOM with bom</span>
+          <div class="astep-b">
+            <div class="cb-code">bom generate --image alpine:3.19.1 --output /home/candidate/alpine.spdx
+head /home/candidate/alpine.spdx    # starts with SPDXVersion: SPDX-2.3</div>
+            <div class="why"><strong>bom syntax:</strong> <code>bom generate --image &lt;ref&gt; --output &lt;file&gt;</code> produces tag-value SPDX. Check <code>bom generate --help</code> in the exam if flags differ. Do not modify the Deployment — only the SBOM file is required.</div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">/home/candidate/alpine.spdx exists, valid SPDX, for alpine:3.19.1</span></div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Deployment untouched (3 containers)</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(11)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q12 ═══════════════ -->
+<div class="qcard" id="q12" data-d="mv">
+  <div class="qhdr" onclick="tq(12)">
+    <div class="qhdr-l"><span class="qnum">Q12</span><span class="qtitle">Fix Deployment for Restricted Pod Security Standard</span></div>
+    <div class="qhdr-r"><span class="dom-b">Microservice Vulns</span><span class="ns-b">restricted-ns</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <p>Namespace <code>restricted-ns</code> enforces the <code>restricted</code> Pod Security Standard. Deployment <span class="cb" onclick="cp(this,'pss-app')"><span class="ci">⎘</span>pss-app</span> is non-compliant and its Pods cannot start. Update it so the Pods comply and run.</p>
+    <button class="ans-btn" onclick="ta('a12')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a12">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Diagnose why Pods are rejected</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n restricted-ns get events --sort-by=.lastTimestamp | tail
+kubectl -n restricted-ns describe rs -l app=pss-app
+# → "violates PodSecurity restricted: privileged, allowPrivilegeEscalation != false, ..."</div>
+            <div class="why">The PSS admission controller rejects Pods at the <strong>ReplicaSet</strong> level, so the Deployment shows 0 pods with no obvious error — always read the ReplicaSet events.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Apply a fully restricted-compliant securityContext</span>
+          <div class="astep-b">
+            <div class="cb-code">kubectl -n restricted-ns edit deploy pss-app</div>
+            <div class="cb-yaml">spec:
+  template:
+    spec:
+      containers:
+        - name: pss-app
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            privileged: false          # remove/replace privileged: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop: ["ALL"]</div>
+            <div class="why"><strong>The restricted checklist:</strong> non-root user, no privilege escalation, no privileged mode, RuntimeDefault (or Localhost) seccomp, and ALL capabilities dropped. Miss any one and the admission webhook rejects the Pod again.</div>
+            <div class="cb-code">kubectl -n restricted-ns get pods   # Running</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(12)">✓ Mark as done</button>
+  </div>
+</div>
+<!-- ═══════════════ Q13 ═══════════════ -->
+<div class="qcard" id="q13" data-d="sh">
+  <div class="qhdr" onclick="tq(13)">
+    <div class="qhdr-l"><span class="qnum">Q13</span><span class="qtitle">Harden the Docker Daemon on a Node</span></div>
+    <div class="qhdr-r"><span class="dom-b">System Hardening</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <ol>
+      <li>Remove user <span class="cb" onclick="cp(this,'developer')"><span class="ci">⎘</span>developer</span> from the <code>docker</code> group — do not remove the user from any other group.</li>
+      <li>Reconfigure and restart the Docker daemon so the Unix socket belongs to group <code>root</code>.</li>
+      <li>Reconfigure and restart the Docker daemon so it does <strong>not listen on any TCP port</strong>.</li>
+    </ol>
+    <div class="note">Ensure the Kubernetes cluster is healthy afterwards.</div>
+    <button class="ans-btn" onclick="ta('a13')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a13">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Remove developer from the docker group only</span>
+          <div class="astep-b">
+            <div class="cb-code">gpasswd -d developer docker      # or: deluser developer docker
+groups developer                 # docker gone, other groups intact</div>
+            <div class="why"><strong>Why the docker group is dangerous:</strong> membership = root-equivalent, because the member can run <code>docker run -v /:/host --privileged</code> and own the node. <code>gpasswd -d</code> removes exactly one group membership — never <code>userdel</code>.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Fix the daemon configuration</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /etc/docker/daemon.json</div>
+            <div class="cb-yaml">{
+  "hosts": ["unix:///var/run/docker.sock"],   // removed tcp://0.0.0.0:2375
+  "group": "root",                            // socket group: was "docker"
+  "log-driver": "json-file"
+}</div>
+            <div class="why"><strong>Why?</strong> <code>tcp://0.0.0.0:2375</code> is an unauthenticated, unencrypted remote root API — anyone on the network can start privileged containers. The <code>group</code> key sets the owner group of <code>/var/run/docker.sock</code>; <code>root</code> restricts it to root. Also check systemd drop-ins: if the unit's <code>ExecStart</code> contains <code>-H tcp://…</code> it overrides/conflicts with daemon.json — remove it there too, then:</div>
+            <div class="cb-code">systemctl daemon-reload
+systemctl restart docker
+ss -tlnp | grep 2375        # nothing
+stat -c '%U:%G' /var/run/docker.sock   # root:root
+kubectl get nodes           # cluster still healthy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(13)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q14 ═══════════════ -->
+<div class="qcard" id="q14" data-d="ch">
+  <div class="qhdr" onclick="tq(14)">
+    <div class="qhdr-l"><span class="qnum">Q14</span><span class="qtitle">Configure Istio Mutual TLS (mTLS) Authentication</span></div>
+    <div class="qhdr-r"><span class="dom-b">Cluster Hardening</span><span class="ns-b">app-ns</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <ol>
+      <li><code>PeerAuthentication</code> named <span class="cb" onclick="cp(this,'target-mtls')"><span class="ci">⎘</span>target-mtls</span> in <code>app-ns</code>: <strong>STRICT</strong> mTLS for workload selector <code>app: target-app</code></li>
+      <li>Port-level exception: port <code>8080</code> uses <strong>PERMISSIVE</strong> mode</li>
+      <li><code>AuthorizationPolicy</code> named <span class="cb" onclick="cp(this,'allow-client')"><span class="ci">⎘</span>allow-client</span> in <code>app-ns</code>: allow requests to target-app <strong>only from namespace client-ns</strong></li>
+    </ol>
+    <button class="ans-btn" onclick="ta('a14')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a14">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">PeerAuthentication with a port-level exception</span>
+          <div class="astep-b">
+            <div class="cb-yaml">apiVersion: security.istio.io/v1
+kind: PeerAuthentication
+metadata:
+  name: target-mtls
+  namespace: app-ns
+spec:
+  selector:
+    matchLabels:
+      app: target-app
+  mtls:
+    mode: STRICT
+  portLevelMtls:
+    8080:
+      mode: PERMISSIVE</div>
+            <div class="why"><strong>STRICT vs PERMISSIVE:</strong> STRICT rejects any plaintext connection — every caller must present an Istio mTLS certificate. PERMISSIVE accepts both, which is exactly what non-mesh health/probe traffic on 8080 needs. <code>portLevelMtls</code> only works with a workload <code>selector</code> (not on mesh/namespace-wide policies).</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">AuthorizationPolicy restricting the caller namespace</span>
+          <div class="astep-b">
+            <div class="cb-yaml">apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-client
+  namespace: app-ns
+spec:
+  selector:
+    matchLabels:
+      app: target-app
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["client-ns"]</div>
+            <div class="why"><strong>Why this locks everyone else out:</strong> once an ALLOW policy matches a workload, all requests not matched by any rule are denied by default — so listing only <code>client-ns</code> implicitly denies every other namespace. Source-namespace identity comes from the mTLS peer certificate, which is why STRICT mTLS and AuthorizationPolicy pair together.</div>
+            <div class="cb-code">kubectl -n app-ns get peerauthentication,authorizationpolicy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(14)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q15 ═══════════════ -->
+<div class="qcard" id="q15" data-d="sc">
+  <div class="qhdr" onclick="tq(15)">
+    <div class="qhdr-l"><span class="qnum">Q15</span><span class="qtitle">ImagePolicyWebhook Admission Control</span></div>
+    <div class="qhdr-r"><span class="dom-b">Supply Chain</span><span class="ns-b">bouncer</span><span class="pts-b">7 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Task</div>
+    <p>An incomplete configuration is at <span class="cb" onclick="cp(this,'/etc/kubernetes/bouncer')"><span class="ci">⎘</span>/etc/kubernetes/bouncer</span>; the scanner endpoint is <span class="cb" onclick="cp(this,'https://smooth-yak.local/review')"><span class="ci">⎘</span>https://smooth-yak.local/review</span>.</p>
+    <ol>
+      <li>Enable the admission plugin(s) needed for the provided AdmissionConfiguration</li>
+      <li>Configure ImagePolicyWebhook to <strong>deny images on backend failure</strong></li>
+      <li>Point the backend kubeconfig to the scanner endpoint</li>
+      <li>Test with <code>/home/candidate/vulnerable.yaml</code> — it should be <strong>denied</strong></li>
+    </ol>
+    <div class="note">Scanner log: <code>/var/log/nginx/access_log</code>. You may delete/re-create the test resource as needed.</div>
+    <button class="ans-btn" onclick="ta('a15')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a15">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Deny on backend failure</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /etc/kubernetes/bouncer/admission_config.yaml</div>
+            <div class="cb-yaml">plugins:
+  - name: ImagePolicyWebhook
+    configuration:
+      imagePolicy:
+        kubeConfigFile: /etc/kubernetes/bouncer/kubeconfig.yaml
+        defaultAllow: false        # was true — fail CLOSED</div>
+            <div class="why"><strong>defaultAllow: false</strong> = fail-closed: if the scanner is unreachable, Pods are rejected rather than silently admitted — the secure default the task demands.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Complete the backend kubeconfig</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /etc/kubernetes/bouncer/kubeconfig.yaml</div>
+            <div class="cb-yaml">clusters:
+  - name: image-scanner
+    cluster:
+      certificate-authority: /etc/kubernetes/bouncer/ca.crt
+      server: https://smooth-yak.local/review    # ← fill in the empty server:</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">3</span><span class="astep-t">Enable the plugin on the API server</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /etc/kubernetes/manifests/kube-apiserver.yaml</div>
+            <div class="cb-yaml">- --enable-admission-plugins=NodeRestriction,ImagePolicyWebhook
+- --admission-control-config-file=/etc/kubernetes/bouncer/admission_config.yaml</div>
+            <p>Make sure <code>/etc/kubernetes/bouncer</code> is readable by the API server container (kubeadm mounts /etc/kubernetes by default via the k8s-certs/etc mounts; add a hostPath mount for the directory if not).</p>
+            <div class="why"><strong>Why the config-file flag too?</strong> Enabling the plugin without pointing at the AdmissionConfiguration leaves it unconfigured; with <code>defaultAllow: false</code> semantics living in that file, both flags are required.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">4</span><span class="astep-t">Test</span>
+          <div class="astep-b">
+            <div class="cb-code"># wait ~60s for the API server to restart, then:
+kubectl apply -f /home/candidate/vulnerable.yaml
+# Error ... denied the request: image rejected by webhook backend
+tail /var/log/nginx/access_log   # shows the POSTed /review requests</div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">Plugin enabled + config file flag · defaultAllow false · server URL set · vulnerable.yaml denied</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(15)">✓ Mark as done</button>
+  </div>
+</div>
+
+<!-- ═══════════════ Q16 ═══════════════ -->
+<div class="qcard" id="q16" data-d="cs">
+  <div class="qhdr" onclick="tq(16)">
+    <div class="qhdr-l"><span class="qnum">Q16</span><span class="qtitle">Secure the API Server (Anonymous Auth, Node,RBAC, NodeRestriction)</span></div>
+    <div class="qhdr-r"><span class="dom-b">Cluster Setup</span><span class="pts-b">6 pts</span><span class="dchk">✓</span><span class="chev">▼</span></div>
+  </div>
+  <div class="qbody">
+    <div class="sl">Context</div>
+    <p>For testing purposes, the API server was configured to allow unauthenticated and unauthorized access.</p>
+    <div class="sl">Task</div>
+    <ol>
+      <li>Forbid anonymous authentication</li>
+      <li>Use authorization mode <span class="cb" onclick="cp(this,'Node,RBAC')"><span class="ci">⎘</span>Node,RBAC</span></li>
+      <li>Use admission controller <span class="cb" onclick="cp(this,'NodeRestriction')"><span class="ci">⎘</span>NodeRestriction</span></li>
+      <li>Clean up: remove the ClusterRoleBinding <span class="cb" onclick="cp(this,'system:anonymous')"><span class="ci">⎘</span>system:anonymous</span></li>
+    </ol>
+    <div class="danger">⚠️ kubectl currently uses anonymous access and will stop working — switch to <code>/etc/kubernetes/admin.conf</code>.</div>
+    <button class="ans-btn" onclick="ta('a16')">💡 Show Detailed Answer</button>
+    <div class="ans-sec" id="a16">
+      <div class="ans-hdr">✦ Detailed Answer &amp; Explanation</div>
+      <div class="ans-body">
+        <div class="astep"><span class="astep-n">1</span><span class="astep-t">Fix the API server flags</span>
+          <div class="astep-b">
+            <div class="cb-code">vi /etc/kubernetes/manifests/kube-apiserver.yaml</div>
+            <div class="cb-yaml">- --anonymous-auth=false                     # was true
+- --authorization-mode=Node,RBAC             # was AlwaysAllow
+- --enable-admission-plugins=NodeRestriction</div>
+            <div class="why"><strong>Why each flag:</strong> anonymous-auth=false rejects credential-less requests outright. <code>Node,RBAC</code> replaces AlwaysAllow: Node authorizes kubelets for exactly their own node's resources, RBAC governs everyone else. <code>NodeRestriction</code> stops a compromised kubelet from modifying other nodes' objects or labeling itself into scheduling-sensitive pools.</div>
+          </div>
+        </div>
+        <div class="astep"><span class="astep-n">2</span><span class="astep-t">Switch kubeconfig and clean up</span>
+          <div class="astep-b">
+            <div class="cb-code"># wait ~60s for the API server to restart; anonymous kubectl now fails (401)
+export KUBECONFIG=/etc/kubernetes/admin.conf
+kubectl get nodes                              # works again
+kubectl delete clusterrolebinding system:anonymous</div>
+            <div class="why"><strong>Why delete the CRB?</strong> It bound cluster-admin to the <code>system:anonymous</code> user. Even with anonymous auth off, leaving a cluster-admin binding for an unauthenticated identity is a landmine if the flag is ever flipped back.</div>
+            <div class="chk-row"><span class="chk-ic">✔</span><span class="chk-tx">3 flags set · CRB system:anonymous gone · cluster functional via admin.conf</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="done-btn" onclick="md(16)">✓ Mark as done</button>
+  </div>
+</div>
+
+</div><!-- /container -->
+<div class="toast" id="toast">Copied!</div>
+<script>
+const TOTAL=16;
+const done=new Set(JSON.parse(localStorage.getItem('cks-sim5-done')||'[]'));
+function save(){localStorage.setItem('cks-sim5-done',JSON.stringify([...done]));}
+function upd(){
+  const n=done.size;
+  document.getElementById('prog-txt').textContent=n+' / '+TOTAL;
+  document.getElementById('prog-bar').style.width=(n/TOTAL*100)+'%';
+  for(let i=1;i<=TOTAL;i++){
+    const c=document.getElementById('q'+i);
+    const x=document.querySelector('#ig .ix:nth-child('+i+')');
+    if(done.has(i)){c&&c.classList.add('done');x&&x.classList.add('done');}
+    else{c&&c.classList.remove('done');x&&x.classList.remove('done');}
+  }
+}
+function fd(d){
+  document.querySelectorAll('.dbtn').forEach(b=>b.classList.remove('active'));
+  document.querySelector('[data-d="'+d+'"]').classList.add('active');
+  document.querySelectorAll('.qcard').forEach(c=>{
+    if(d==='all'||c.dataset.d===d){c.classList.remove('hidden');}
+    else{c.classList.add('hidden');c.classList.remove('open');}
+  });
+  document.querySelectorAll('#ig .ix').forEach(x=>{
+    if(d==='all'||x.dataset.d===d){x.classList.remove('hidden');}
+    else{x.classList.add('hidden');}
+  });
+}
+function tq(n){
+  const c=document.getElementById('q'+n);
+  const o=c.classList.contains('open');
+  document.querySelectorAll('.qcard.open').forEach(x=>x.classList.remove('open'));
+  if(!o)c.classList.add('open');
+}
+function oq(n){
+  const c=document.getElementById('q'+n);
+  document.querySelectorAll('.qcard.open').forEach(x=>x.classList.remove('open'));
+  c.classList.add('open');
+  setTimeout(()=>c.scrollIntoView({behavior:'smooth',block:'start'}),50);
+}
+function md(n){if(done.has(n))done.delete(n);else done.add(n);save();upd();}
+function ta(id){
+  const s=document.getElementById(id);
+  const b=s.previousElementSibling;
+  if(s.classList.contains('open')){s.classList.remove('open');b.textContent='💡 Show Detailed Answer';}
+  else{s.classList.add('open');b.textContent='🔼 Hide Answer';}
+}
+let tt;
+function cp(el,text){
+  const d=text.replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+  navigator.clipboard.writeText(d).then(()=>{
+    el.classList.add('copied');setTimeout(()=>el.classList.remove('copied'),1200);
+    const t=document.getElementById('toast');t.textContent='Copied: '+d;t.classList.add('show');
+    clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1600);
+  }).catch(()=>{const a=document.createElement('textarea');a.value=d;document.body.appendChild(a);a.select();document.execCommand('copy');document.body.removeChild(a);});
+}
+upd();
+</script>
+</body>
+</html>

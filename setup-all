@@ -1,0 +1,23 @@
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
+
+echo ""
+echo -e "${BOLD}${CYAN}CKS Exam Simulator 5 — Setting up ALL 16 questions${NC}"
+echo -e "${YELLOW}⚠️  This will modify cluster state. Run on a dedicated lab cluster only.${NC}"
+echo ""
+
+i=1
+for dir in "$SCRIPT_DIR/questions"/Q*/; do
+  title=$(head -1 "$dir/QUESTION.md" 2>/dev/null | sed 's/^# //')
+  printf "${CYAN}[%2d/16]${NC} Setting up: %s\n" "$i" "$title"
+  bash "$dir/setup.sh" > /dev/null 2>&1 && \
+    echo -e "        ${GREEN}✔ Done${NC}" || \
+    echo -e "        ${YELLOW}⚠ Skipped (check manually)${NC}"
+  ((i++))
+done
+
+echo ""
+echo -e "${GREEN}${BOLD}✅  All questions set up.${NC}"
+echo -e "Run ${CYAN}./cks list${NC} to see all questions."
+echo ""

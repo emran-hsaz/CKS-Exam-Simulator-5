@@ -1,0 +1,69 @@
+#!/bin/bash
+# =============================================================================
+# cks — CKS Exam Simulator 5 CLI
+# Usage:
+#   ./cks list           - list all questions with marks
+#   ./cks setup <n>      - set up the cluster state for question n
+#   ./cks q <n>          - show question n
+#   ./cks check <n>      - grade your answer
+#   ./cks reset <n>      - clean up question n
+# =============================================================================
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+QUESTIONS_DIR="$SCRIPT_DIR/questions"
+
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
+CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
+
+usage() {
+  echo ""
+  echo -e "${BOLD}CKS Exam Simulator 5${NC} — 16 questions | 109 pts"
+  echo ""
+  echo -e "  ${CYAN}./cks list${NC}          List all questions and marks"
+  echo -e "  ${CYAN}./cks setup <n>${NC}     Set up cluster state for question n"
+  echo -e "  ${CYAN}./cks q <n>${NC}         Show question n"
+  echo -e "  ${CYAN}./cks check <n>${NC}     Grade your answer"
+  echo -e "  ${CYAN}./cks reset <n>${NC}     Clean up question n"
+  echo ""
+  echo -e "  ${YELLOW}Workflow: setup → q → solve → check${NC}"
+  echo ""
+}
+
+get_qdir() {
+  local padded; padded=$(printf "%02d" "$1")
+  local match; match=$(find "$QUESTIONS_DIR" -maxdepth 1 -type d -name "Q${padded}*" | head -1)
+  [ -z "$match" ] && echo -e "${RED}Error: Question $1 not found.${NC}" >&2 && exit 1
+  echo "$match"
+}
+
+cmd_list() {
+  echo ""
+  echo -e "${BOLD}${CYAN}CKS Exam Simulator 5 — 16 Questions${NC}"
+  echo -e "${CYAN}══════════════════════════════════════════════════════════${NC}"
+  local i=1 total=0
+  for dir in "$QUESTIONS_DIR"/Q*/; do
+    local title; title=$(head -1 "$dir/QUESTION.md" 2>/dev/null | sed 's/^# //')
+    local marks; marks=$(grep -m1 "^MARKS=" "$dir/check.sh" 2>/dev/null | cut -d= -f2)
+    marks=${marks:-"?"}
+    printf "  ${YELLOW}%2d${NC}. %-58s ${CYAN}[%s pts]${NC}\n" "$i" "$title" "$marks"
+    [ "$marks" != "?" ] && total=$((total + marks))
+    ((i++))
+  done
+  echo -e "${CYAN}══════════════════════════════════════════════════════════${NC}"
+  echo -e "  ${BOLD}Total: $((i-1)) questions  |  $total points${NC}"
+  echo ""
+}
+
+cmd_setup() { local qdir; qdir=$(get_qdir "$1"); echo ""; bash "$qdir/setup.sh"; echo ""; echo -e "${GREEN}✅  Ready. Run: ${BOLD}./cks q $1${NC}"; echo ""; }
+cmd_q()     { local qdir; qdir=$(get_qdir "$1"); echo ""; cat "$qdir/QUESTION.md"; echo ""; }
+cmd_check() { local qdir; qdir=$(get_qdir "$1"); bash "$qdir/check.sh"; }
+cmd_reset() { local qdir; qdir=$(get_qdir "$1"); echo ""; bash "$qdir/reset.sh"; echo ""; echo -e "${GREEN}✅  Reset done.${NC}"; echo ""; }
+
+case "${1:-}" in
+  list)   cmd_list ;;
+  setup)  [[ -z "${2:-}" ]] && usage && exit 1; cmd_setup "$2" ;;
+  q)      [[ -z "${2:-}" ]] && usage && exit 1; cmd_q "$2" ;;
+  check)  [[ -z "${2:-}" ]] && usage && exit 1; cmd_check "$2" ;;
+  reset)  [[ -z "${2:-}" ]] && usage && exit 1; cmd_reset "$2" ;;
+  *)      usage ;;
+esac

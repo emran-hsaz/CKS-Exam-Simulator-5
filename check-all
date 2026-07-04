@@ -1,0 +1,35 @@
+#!/bin/bash
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; BOLD='\033[1m'; NC='\033[0m'
+
+echo ""
+echo -e "${BOLD}${CYAN}CKS Exam Simulator 5 — Checking ALL 16 questions${NC}"
+echo -e "${CYAN}══════════════════════════════════════════════════════════${NC}"
+
+total_score=0; total_marks=0; i=1
+for dir in "$SCRIPT_DIR/questions"/Q*/; do
+  title=$(head -1 "$dir/QUESTION.md" 2>/dev/null | sed 's/^# //')
+  marks=$(grep -m1 "^MARKS=" "$dir/check.sh" 2>/dev/null | cut -d= -f2)
+  marks=${marks:-0}
+  out=$(bash "$dir/check.sh" 2>/dev/null)
+  scored=$(echo "$out" | grep -oP 'Score: \K[0-9]+' | head -1)
+  scored=${scored:-0}
+  total_score=$((total_score + scored)); total_marks=$((total_marks + marks))
+  if [ "$scored" = "$marks" ]; then
+    printf "  ${GREEN}✔${NC} Q%-2d %-50s ${GREEN}%s/%s${NC}\n" "$i" "$title" "$scored" "$marks"
+  elif [ "$scored" -gt 0 ]; then
+    printf "  ${YELLOW}~${NC} Q%-2d %-50s ${YELLOW}%s/%s${NC}\n" "$i" "$title" "$scored" "$marks"
+  else
+    printf "  ${RED}✘${NC} Q%-2d %-50s ${RED}%s/%s${NC}\n" "$i" "$title" "$scored" "$marks"
+  fi
+  ((i++))
+done
+
+echo -e "${CYAN}══════════════════════════════════════════════════════════${NC}"
+pct=0; [ "$total_marks" -gt 0 ] && pct=$(( total_score * 100 / total_marks ))
+if [ "$pct" -ge 66 ]; then
+  echo -e "  ${GREEN}${BOLD}TOTAL: $total_score/$total_marks ($pct%) — PASS ✓${NC}"
+else
+  echo -e "  ${RED}${BOLD}TOTAL: $total_score/$total_marks ($pct%) — Keep practising${NC}"
+fi
+echo ""
