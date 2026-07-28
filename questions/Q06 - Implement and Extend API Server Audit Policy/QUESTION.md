@@ -24,6 +24,8 @@ The basic policy only specifies what **not** to log.
 
 Make sure the API server uses the extended policy. Failure to do so may result in a reduced score.
 
+> **Important — restart gotcha:** the API server reads the audit policy file **only at startup**. The kubelet only watches the *manifest* `kube-apiserver.yaml`, not the referenced policy file. So after you edit `/etc/kubernetes/logpolicy/audit-policy.yaml`, you must force an API server restart for the new policy to take effect — e.g. `touch /etc/kubernetes/manifests/kube-apiserver.yaml` (or briefly move it out and back). The `audit-logs.txt` file only appears once the API server restarts with the flags in place.
+
 ## Verify
 ```bash
 ls -l /var/log/kubernetes/audit-logs.txt

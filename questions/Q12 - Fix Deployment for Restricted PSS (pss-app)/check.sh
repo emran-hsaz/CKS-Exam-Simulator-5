@@ -21,8 +21,8 @@ sc='.spec.template.spec.containers[0].securityContext'
 chk "runAsNonRoot: true (pod or container level)" "$([ "$(j $sc.runAsNonRoot)" = "true" ] || [ "$(j .spec.template.spec.securityContext.runAsNonRoot)" = "true" ] && echo true || echo false)" && ((passed++))
 chk "allowPrivilegeEscalation: false" "$([ "$(j $sc.allowPrivilegeEscalation)" = "false" ] && echo true || echo false)" && ((passed++))
 sp=$(j $sc.seccompProfile.type); psp=$(j .spec.template.spec.securityContext.seccompProfile.type)
-drop=$(j "$sc.capabilities.drop[0]")
-chk "seccompProfile RuntimeDefault + capabilities drop ALL" "$({ [ "$sp" = "RuntimeDefault" ] || [ "$psp" = "RuntimeDefault" ]; } && [ "$drop" = "ALL" ] && echo true || echo false)" && ((passed++))
+drop=$(kubectl get deploy pss-app -n restricted-ns -o jsonpath="{.spec.template.spec.containers[0].securityContext.capabilities.drop[*]}" 2>/dev/null)
+chk "seccompProfile RuntimeDefault + capabilities drop ALL" "$({ [ "$sp" = "RuntimeDefault" ] || [ "$psp" = "RuntimeDefault" ]; } && echo "$drop" | grep -qw ALL && echo true || echo false)" && ((passed++))
 avail=$(j .status.availableReplicas)
 chk "pss-app Pods run in the restricted namespace" "$([ -n "$avail" ] && [ "$avail" -gt 0 ] 2>/dev/null && echo true || echo false)" && ((passed++))
 score_line $passed $checks

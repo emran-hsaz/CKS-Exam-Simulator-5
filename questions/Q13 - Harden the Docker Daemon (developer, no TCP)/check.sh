@@ -18,7 +18,7 @@ passed=0; checks=4
 hdr "Q13 | Harden the Docker Daemon (7 pts)"
 g=$(id developer 2>/dev/null)
 chk "developer is NOT in the docker group" "$(echo "$g" | grep -qw docker && echo false || echo true)" && ((passed++))
-chk "developer still exists (not deleted)" "$([ -n "$g" ] && echo true || echo false)" && ((passed++))
+chk "developer still in other group 'staff' (not over-removed)" "$([ -n "$g" ] && echo "$g" | grep -qw staff && echo true || echo false)" && ((passed++))
 DJ=/etc/docker/daemon.json
 grp=$(python3 -c "import json;print(json.load(open('$DJ')).get('group',''))" 2>/dev/null)
 sockgrp=$(stat -c '%G' /var/run/docker.sock 2>/dev/null)

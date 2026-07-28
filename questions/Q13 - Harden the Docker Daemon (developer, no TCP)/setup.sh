@@ -3,6 +3,8 @@ echo "Setting up Q13 — insecure Docker daemon configuration..."
 id developer &>/dev/null || useradd -m developer
 groupadd docker 2>/dev/null || true
 usermod -aG docker developer
+groupadd staff 2>/dev/null || true
+usermod -aG staff developer   # a second group — must NOT be removed
 mkdir -p /etc/docker
 cat > /etc/docker/daemon.json <<'JSON'
 {

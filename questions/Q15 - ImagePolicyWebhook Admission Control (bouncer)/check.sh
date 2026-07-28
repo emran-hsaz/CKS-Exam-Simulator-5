@@ -19,6 +19,7 @@ hdr "Q15 | ImagePolicyWebhook Admission Control (7 pts)"
 APISERVER="/etc/kubernetes/manifests/kube-apiserver.yaml"
 CFG="/etc/kubernetes/bouncer/admission_config.yaml"
 KC="/etc/kubernetes/bouncer/kubeconfig.yaml"
+
 plugins=$(grep -oP 'enable-admission-plugins=\K\S+' "$APISERVER" 2>/dev/null | head -1)
 chk "ImagePolicyWebhook enabled in --enable-admission-plugins" "$(echo "$plugins" | grep -q ImagePolicyWebhook && echo true || echo false)" && ((passed++))
 chk "--admission-control-config-file points to the bouncer config" "$(grep -q 'admission-control-config-file=/etc/kubernetes/bouncer/admission_config.yaml' "$APISERVER" 2>/dev/null && echo true || echo false)" && ((passed++))
@@ -29,6 +30,22 @@ p=[x for x in c.get('plugins',[]) if x.get('name')=='ImagePolicyWebhook'][0]
 print(p['configuration']['imagePolicy'].get('defaultAllow'))" 2>/dev/null)
 chk "defaultAllow: false (deny on backend failure)" "$([ "$da" = "False" ] && echo true || echo false)" && ((passed++))
 chk "Backend server = https://smooth-yak.local/review" "$(grep -q 'server: https://smooth-yak.local/review' "$KC" 2>/dev/null && echo true || echo false)" && ((passed++))
-api=$(kubectl get pod -n kube-system 2>/dev/null | grep apiserver | grep -c Running)
-chk "API server is running" "$([ "${api:-0}" -ge 1 ] && echo true || echo false)" && ((passed++))
+
+# --- DECISIVE live test: the running API server must actually DENY the vulnerable Pod ---
+# (This is what proves the config is loaded — grepping files is not enough.)
+kubectl delete pod vulnerable -n default --ignore-not-found >/dev/null 2>&1
+out=$(kubectl apply -f /home/candidate/vulnerable.yaml 2>&1)
+rc=$?
+kubectl delete pod vulnerable -n default --ignore-not-found >/dev/null 2>&1
+denied=false
+if [ $rc -ne 0 ] && echo "$out" | grep -qiE 'denied|forbidden|imagepolicywebhook|not authorized|rejected'; then
+  denied=true
+fi
+chk "LIVE: vulnerable Pod is actually DENIED by admission control" "$denied" && ((passed++))
+if [ "$denied" != "true" ]; then
+  echo -e "     ${YELLOW}hint:${NC} apply returned rc=$rc. If the config files look right but this fails,"
+  echo -e "     you likely need to RESTART the API server so it reloads the bouncer config:"
+  echo -e "         touch /etc/kubernetes/manifests/kube-apiserver.yaml   # then wait ~60s"
+fi
+checks=5
 score_line $passed $checks

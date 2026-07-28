@@ -34,7 +34,6 @@ spec:
             - containerPort: 8080
           securityContext:
             privileged: true
-            runAsNonRoot: false
 YAML
 echo "Done."
 echo "  Dockerfile: /home/candidate/subtle-bee/build/Dockerfile"

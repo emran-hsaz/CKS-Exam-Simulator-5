@@ -2,6 +2,8 @@
 
 **Domain:** Cluster Setup · **Weight:** 6
 
+> **Environment requirement:** this task needs a **multi-node cluster** (control plane + a separate worker one patch version behind). It cannot be practiced on a single-node Killercoda playground — use a killer.sh-style 2-node environment. On a single-node cluster the grader will tell you the environment is unsupported instead of failing your answer.
+
 ## Task
 The worker node is running an older kubelet patch version (`v1.30.0`) and must be upgraded to `v1.30.1`.
 
